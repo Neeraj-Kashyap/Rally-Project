@@ -2,36 +2,65 @@ import time
 import speech_recognition as sr
 import pyglet
 
+
 bg_sound_path = 'sounds/bg_sound.wav'
+
+def pause():
+    programPause = raw_input("Press the <ENTER> key to continue...")
+
 # this is called from the background thread
 def callback(recognizer, audio):
     # received audio data, now we'll recognize it using Google Speech Recognition
     try:
+        message = recognizer.recognize_google(audio, language="it-IT")
         # for testing purposes, we're just using the default API key
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
-        print("Google Speech Recognition thinks you said: " + recognizer.recognize_google(audio, language="it-IT"))
+        out_file = open("log.txt","a")
+        out_file.write(message + "\n")
+        out_file.close()
+        print("Ricevuto: " + message)
+
+        if "sinistra" in message:
+            print ("Do something sx")
+        elif "destra" in message:
+            print ("Do something dx")
+    
     except sr.UnknownValueError:
-        print("Google Speech Recognition could not understand audio")
+        print("Non ho sentito bene!")
     except sr.RequestError as e:
-        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+        print("error: Could not request results from Google Speech Recognition service; {0}".format(e))
+
+
+def playSound(paht_to_sound, is_loop):
+    snd = pyglet.media.load(paht_to_sound)
+    looper = pyglet.media.SourceGroup(snd.audio_format, None)
+    looper.loop = is_loop
+    looper.queue(snd)
+    p = pyglet.media.Player()
+    p.queue(looper)
+    p.play()
+    pyglet.app.run()
 
 r = sr.Recognizer()
 m = sr.Microphone()
-print m.list_microphone_names()
+print( m.list_microphone_names() )
 with m as source:
     r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
 
-print "start speaking"
+print("start speaking")
 # start listening in the background (note that we don't have to do this inside a `with` statement)
 r.listen_in_background(m, callback)
 
+while True:
+    time.sleep(5)
+# playSound(bg_sound_path, False)
 
-song = pyglet.media.load(bg_sound_path)
-help(pyglet.app)
 
-song.play()
-pyglet.app.run()
+
+
+
+
 
 # while True: time.sleep(0.1)
 # `stop_listening` is now a function that, when called, stops background listening

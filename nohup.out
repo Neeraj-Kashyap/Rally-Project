@@ -1,0 +1,7 @@
+[u'Built-in Microphone', u'Built-in Output']
+start speaking
+Non ho sentito bene!
+Traceback (most recent call last):
+  File "provaSpeech.py", line 56, in <module>
+    time.sleep(5)
+KeyboardInterrupt
