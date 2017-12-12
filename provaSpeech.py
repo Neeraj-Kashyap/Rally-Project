@@ -1,6 +1,5 @@
-import time
+import time, pyglet
 import speech_recognition as sr
-import pyglet
 
 
 bg_sound_path = 'sounds/bg_sound.wav'
