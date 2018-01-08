@@ -20,7 +20,6 @@ body {
 
 #wrapper-inner {
     background: url("../img/bg.jpg") no-repeat center top;
-    min-height: 1000px;
     /* gestione immagine di sfondo */
     background-size: contain; /* adatta l'immagine anche con il resize */
     background-size: cover; /* Fa riempire l'immagine al div in cui contiene */

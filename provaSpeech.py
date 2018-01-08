@@ -1,22 +1,22 @@
-import time, pyglet
+import time, pyglet, timeit
 import speech_recognition as sr
 
 
 bg_sound_path = 'sounds/bg_sound.wav'
 
-def pause():
-    programPause = raw_input("Press the <ENTER> key to continue...")
-
 # this is called from the background thread
-def callback(recognizer, audio):
+def heardSomething(recognizer, audio):
     # received audio data, now we'll recognize it using Google Speech Recognition
+    start = timeit.default_timer()
     try:
         message = recognizer.recognize_google(audio, language="it-IT")
+        stop = timeit.default_timer()
+        totalTime = str( stop - start )
         # for testing purposes, we're just using the default API key
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         out_file = open("log.txt","a")
-        out_file.write(message + "\n")
+        out_file.write(message +" time:"+ totalTime +"\n")
         out_file.close()
         print("Ricevuto: " + message)
 
@@ -43,17 +43,18 @@ def playSound(paht_to_sound, is_loop):
 
 r = sr.Recognizer()
 m = sr.Microphone()
-print( m.list_microphone_names() )
+
 with m as source:
     r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
 
 print("start speaking")
 # start listening in the background (note that we don't have to do this inside a `with` statement)
-r.listen_in_background(m, callback)
+r.listen_in_background(m, heardSomething)
 
 while True:
     time.sleep(5)
-# playSound(bg_sound_path, False)
+    
+#playSound(bg_sound_path, False)
 
 
 
