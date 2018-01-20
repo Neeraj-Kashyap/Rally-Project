@@ -24,7 +24,12 @@ def rightFor( timeInSeconds ):
 	time.sleep( timeInSeconds )
 	GPIO.output( (leftWheels, rightWheels), True )
 
-straightFor( 0 )
-leftFor( 2 )
-straightFor(1)
+straightFor( 1 )
+#rightFor( 0.65*5 )
+#straightFor(1)
 #rightFor( 5 )
+
+
+
+# 1s dritto --> 57cm
+# 0.65s destra --> 90 gradi
