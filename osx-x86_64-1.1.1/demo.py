@@ -16,7 +16,7 @@ def interrupt_callback():
     global interrupted
     return interrupted
 
-model = "../rpi-arm-raspbian-8.0-1.1.1/models/micio.pmdl"
+model = "../rpi-arm-raspbian-8.0-1.1.1/models/sinistra.pmdl"
 
 
 # capture SIGINT signal, e.g., Ctrl+C

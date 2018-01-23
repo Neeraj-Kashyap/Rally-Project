@@ -49,7 +49,7 @@ def records(output, seconds):
 
 	#playSound('../sounds/speak.wav')
 	
-	print "recording..."
+	print "PARLARE ORA!"
 	frames = []
 	 
 	for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
