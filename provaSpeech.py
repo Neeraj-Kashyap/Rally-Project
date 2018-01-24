@@ -9,7 +9,8 @@ def heardSomething(recognizer, audio):
     # received audio data, now we'll recognize it using Google Speech Recognition
     start = timeit.default_timer()
     try:
-        message = recognizer.recognize_google(audio, language="it-IT")
+
+        message = recognizer.recognize_wit(audio, key="YCTWXXXALS7JKLZMD6LIMYYBB5UHDA6F", show_all=False)
         stop = timeit.default_timer()
         totalTime = str( stop - start )
         # for testing purposes, we're just using the default API key
@@ -44,6 +45,7 @@ def playSound(paht_to_sound, is_loop):
 r = sr.Recognizer()
 m = sr.Microphone()
 
+#print(m)
 with m as source:
     r.adjust_for_ambient_noise(source)  # we only need to calibrate once, before we start listening
 
