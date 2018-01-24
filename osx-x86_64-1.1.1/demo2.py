@@ -71,7 +71,11 @@ def duplex():
 
 
 
+<<<<<<< HEAD
 models = ['models/left1.pmdl','models/start.pmdl', 'models/stop.pmdl']
+=======
+models = ['../rpi-arm-raspbian-8.0-1.1.1/models/uno.pmdl','../rpi-arm-raspbian-8.0-1.1.1/models/due.pmdl', '../rpi-arm-raspbian-8.0-1.1.1/models/tre.pmdl']
+>>>>>>> 3a5b1eb1857176e2dbdd52b0ca118cfe6f4a5be9
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
@@ -79,8 +83,13 @@ signal.signal(signal.SIGINT, signal_handler)
 sensitivity = [0.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 callbacks = [left1,
+<<<<<<< HEAD
             start,
             stop]
+=======
+            left2,
+            left3]
+>>>>>>> 3a5b1eb1857176e2dbdd52b0ca118cfe6f4a5be9
 print('Listening... Press Ctrl+C to exit')
 
 # main loop

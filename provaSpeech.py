@@ -10,7 +10,11 @@ def heardSomething(recognizer, audio):
     start = timeit.default_timer()
     try:
 
+<<<<<<< HEAD
         message = recognizer.recognize_wit(audio, key="YCTWXXXALS7JKLZMD6LIMYYBB5UHDA6F", show_all=False)
+=======
+        message = recognizer.recognize_sphinx(audio) 
+>>>>>>> 3a5b1eb1857176e2dbdd52b0ca118cfe6f4a5be9
         stop = timeit.default_timer()
         totalTime = str( stop - start )
         # for testing purposes, we're just using the default API key

@@ -16,7 +16,11 @@ def interrupt_callback():
 
 
 
+<<<<<<< HEAD
 model = 'samples/sin.pmdl'
+=======
+model = 'samples/sx.pmdl'
+>>>>>>> 3a5b1eb1857176e2dbdd52b0ca118cfe6f4a5be9
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
