@@ -43,8 +43,6 @@ def left3():
     print('left3')
     
 
-def left4():
-    print('left4')
     
 
 def right1():
@@ -59,8 +57,14 @@ def right3():
     print('right3')
     
 
-def right4():
-    print('right4')
+def ff():
+    print('ff')
+
+def start():
+    print('start')
+
+def stop():
+    print('stop')
     
 
 def duplex():
@@ -70,26 +74,19 @@ def duplex():
         rightFor(pi) # inversione a destra
 
 
-
-<<<<<<< HEAD
-models = ['models/left1.pmdl','models/start.pmdl', 'models/stop.pmdl']
-=======
-models = ['../rpi-arm-raspbian-8.0-1.1.1/models/uno.pmdl','../rpi-arm-raspbian-8.0-1.1.1/models/due.pmdl', '../rpi-arm-raspbian-8.0-1.1.1/models/tre.pmdl']
->>>>>>> 3a5b1eb1857176e2dbdd52b0ca118cfe6f4a5be9
+m_path = '../rpi-arm-raspbian-8.0-1.1.1/models/'
+models = [m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
+          m_path+'right1.pmdl',m_path+'right2.pmdl', m_path+'right3.pmdl',
+          m_path+'ff.pmdl',m_path+'start.pmdl', m_path+'stop.pmdl']
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
 sensitivity = [0.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
-callbacks = [left1,
-<<<<<<< HEAD
-            start,
-            stop]
-=======
-            left2,
-            left3]
->>>>>>> 3a5b1eb1857176e2dbdd52b0ca118cfe6f4a5be9
+callbacks = [left1, left2, left3,
+             right1, right2, right3,
+             ff, start, stop]
 print('Listening... Press Ctrl+C to exit')
 
 # main loop
