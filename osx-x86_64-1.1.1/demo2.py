@@ -13,7 +13,6 @@ def signal_handler(signal, frame):
     global interrupted
     interrupted = True
 
-
 def interrupt_callback():
     global interrupted
     return interrupted
@@ -21,52 +20,52 @@ def interrupt_callback():
 def getReady():
     print('Car worked')
     
-
-
 def start():
     print('start')
     
-
 def ff():
     print('ff')
     
-
 def stop():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('stop')
-
 # var pi is a global variable set to 180 deg
 def left1():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('Left1')
     
-
 def left2():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left2')
     
-
 def left3():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left3')
     
-
-def left4():
-    print('left4')
-    
-
 def right1():
+    snowboydecoder.play_audio_file
     print('right1')
     
-
 def right2():
+    snowboydecoder.play_audio_file
     print('right2')
     
-
 def right3():
+    snowboydecoder.play_audio_file
     print('right3')
     
+def ff():
+    snowboydecoder.play_audio_file
+    print('ff')
 
-def right4():
-    print('right4')
+def start():
+    snowboydecoder.play_audio_file
+    print('start')
+
+def stop():
+    snowboydecoder.play_audio_file
+    print('stop')
     
-
 def duplex():
     if random.randrange(0,1) < 0.5: # inversione a sinistra
         leftFor(pi)
@@ -74,24 +73,24 @@ def duplex():
         rightFor(pi) # inversione a destra
 
 
-
-m_path = '../rpi-arm-raspbian-8.0-1.1.1/models/'
+m_path = '../rpi-arm-raspbian-8.0-1.1.1/GoldModels/'
 
 models = [ m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
            m_path+'right1.pmdl',m_path+'right2.pmdl', m_path+'right3.pmdl',
-           m_path+'go.pmdl',m_path+'alt.pmdl', m_path+'ff.pmdl']
-
+           # m_path+'start.pmdl', m_path+'ff.pmdl'
+           ]
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
-sensitivity = [0.43]*len(models)
+sensitivity = [0.55]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
+
 callbacks = [left1, left2, left3, 
              right1, right2, right3,
-             start, stop, ff]
+             # start, ff
+             ]
 
 print('Listening... Press Ctrl+C to exit')
-
 # main loop
 # make sure you have the same numbers of callbacks and models
 detector.start(detected_callback=callbacks,

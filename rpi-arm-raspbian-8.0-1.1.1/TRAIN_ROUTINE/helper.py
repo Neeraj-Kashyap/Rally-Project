@@ -1,55 +1,60 @@
 import pyaudio
-import wave
 import pygame
+import pyaudio
+import wave
+import sys
 
-def playSound(paht_to_sound, is_loop = False):
-	#define stream chunk   
-	chunk = 1024  
+def playSound():
+	chunk = 1024
+	# open the file for reading.
+	wf = wave.open('../../sounds/training.wav', 'rb')
 
-	#open a wav format music  
-	f = wave.open(paht_to_sound)  
-	#instantiate PyAudio  
-	p = pyaudio.PyAudio()  
-	#open stream  
-	stream = p.open(format = p.get_format_from_width(f.getsampwidth()),  
-	                channels = f.getnchannels(),  
-	                rate = f.getframerate(),  
-	                output = True)  
-	#read data  
-	data = f.readframes(chunk)  
+	# create an audio object
+	p = pyaudio.PyAudio()
 
-	#play stream  
-	while data:  
-	    stream.write(data)  
-	    data = f.readframes(chunk)  
+	# open stream based on the wave object which has been input.
+	stream_ = p.open(format =
+                p.get_format_from_width(wf.getsampwidth()),
+                channels = wf.getnchannels(),
+                rate = wf.getframerate(),
+                output = True)
 
-	#stop stream  
-	stream.stop_stream()  
-	stream.close()  
+	# read data (based on the chunk size)
+	data = wf.readframes(chunk)
 
-	#close PyAudio
-	p.terminate() 
-########################################################################
+	# play stream (looping from beginning of file to the end)
+	while data != '':
+		stream_.write(data)
+		data = wf.readframes(chunk)
+	
+	# cleanup stuff.
+	stream_.close()    
+	p.terminate()
+
 
 
 def records(output, seconds):
+	print("AUDIO SIGNAL")
+	playSound()
+	#print("PARLARE ORA!")
+
+	
 	FORMAT = pyaudio.paInt16
 	CHANNELS = 1
 	RATE = 44100
 	CHUNK = 1024
 	RECORD_SECONDS = seconds
 	WAVE_OUTPUT_FILENAME = output
-	 
-	audio = pyaudio.PyAudio()
-	 
-	# start Recording
-	stream = audio.open(format=FORMAT, channels=CHANNELS,
-	                rate=RATE, input=True,
-	                frames_per_buffer=CHUNK)
 
-	#playSound('../sounds/speak.wav')
+	audio = pyaudio.PyAudio()
+
+	# start recording
+	stream = audio.open(format=FORMAT, channels=CHANNELS,
+					rate=RATE, input=True,
+					frames_per_buffer=CHUNK)
+
 	
-	print("PARLARE ORA!")
+	
 	frames = []
 	 
 	for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):

@@ -5,7 +5,6 @@ import training_service as ts
 if __name__ == '__main__':
 	
 	ts.updateModel("ff", "../samples/", "../models/")
-
 	#FOR TEST ON MAC:
 	#run ../osx-x86-64-1.1.1/demo.py or demo2.py
 	#as you can see these scripts catch models in ../rpi.... folder

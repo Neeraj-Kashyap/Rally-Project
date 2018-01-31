@@ -4,8 +4,11 @@ import signal
 import RPi.GPIO as GPIO
 import time
 import random
+import pyaudio
+import wave
 
-pi = 3*1.30
+
+pi = 2*1.30
 # pin per rasby
 leftWheels = 15
 rightWheels = 14
@@ -43,6 +46,33 @@ def rightFor( timeInSeconds ):
 
 interrupted = False
 
+def playSound():
+    chunk = 1024
+    # open the file for reading.
+    wf = wave.open('../sounds/training.wav', 'rb')
+
+    # create an audio object
+    p = pyaudio.PyAudio()
+
+    # open stream based on the wave object which has been input.
+    stream_ = p.open(format =
+                p.get_format_from_width(wf.getsampwidth()),
+                channels = wf.getnchannels(),
+                rate = wf.getframerate(),
+                output = True)
+
+    # read data (based on the chunk size)
+    data = wf.readframes(chunk)
+
+    # play stream (looping from beginning of file to the end)
+    while data != '':
+        stream_.write(data)
+        data = wf.readframes(chunk)
+    
+    # cleanup stuff.
+    stream_.close()    
+    p.terminate()
+
 
 def signal_handler(signal, frame):
     global interrupted
@@ -62,43 +92,64 @@ def start():
     straight()
 
 def alt():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('alt')
+    stop()
+
+def ff():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+    print('ff')
+    leftFor(pi/2)
+    rightFor(pi/4)
+    leftFor(pi/5)
+    rightFor(pi*2)
     stop()
 
 # var pi is a global variable set to 180 deg
 def left1():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+    #playSound()
     print('Left1')
     leftFor(pi/12)
+    
 
 def left2():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left2')
-    leftFor(pi/5)
+    leftFor(pi/4)
 
 def left3():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left3')
     leftFor(pi/3)
 
 def left4():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left4')
     leftFor(pi/2)
 
 def right1():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('right1')
     rightFor(pi/12)
 
 def right2():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('right2')
-    rightFor(pi/5)
+    rightFor(pi/4)
 
 def right3():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('right3')
     rightFor(pi/3)
 
 def right4():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('right4')
     rightFor(pi/2)
 
 def duplex():
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('inversione')
     if random.randrange(0,1) < 0.5: # inversione a sinistra
         leftFor(pi)
@@ -107,28 +158,32 @@ def duplex():
 
 
 stop()
-models = ['models/start.pmdl', 
-          'models/destra1.pmdl', 
-          'models/destra2.pmdl', 
-          'models/destra3.pmdl', 
-          'models/sinistra1.pmdl', 
-          'models/sinistra2.pmdl',
-          'models/sinistra3.pmdl', 
-          'models/alt.pmdl']
+models = [
+          #'models/start.pmdl', 
+          'GoldModels/right1.pmdl', 
+          'GoldModels/right2.pmdl', 
+          'GoldModels/right3.pmdl', 
+          'GoldModels/left1.pmdl', 
+          'GoldModels/left2.pmdl',
+          'GoldModels/left3.pmdl', 
+          'models/alt.pmdl'
+          ]
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
-sensitivity = [.55]*len(models)
+sensitivity = [.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
-callbacks = [start,
+callbacks = [
+            #start,
             right1,
             right2,
             right3,
             left1,
             left2, 
             left3, 
-            alt]
+            alt
+            ]
 print('Listening... Press Ctrl+C to exit')
 
 # main loop
@@ -137,4 +192,4 @@ detector.start(detected_callback=callbacks,
                interrupt_check=interrupt_callback,
                sleep_time=0.03)
 
-detector.terminate()
+detector.terminam
