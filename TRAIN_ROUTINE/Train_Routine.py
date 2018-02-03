@@ -4,7 +4,7 @@ import training_service as ts
 #User have to spell three times the word with train the model when in output appear "PARLARE ORA!"
 if __name__ == '__main__':
 	
-	ts.updateModel("ff", "trainingSamples/", "../models/")
+	ts.updateModel("right1", "trainingSamples/adel/", "../models/adel/")
 	#FOR TEST ON MAC:
 	#run ../osx-x86-64-1.1.1/demo.py or demo2.py
 	#as you can see these scripts catch models in ../rpi.... folder

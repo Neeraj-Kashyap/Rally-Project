@@ -53,17 +53,17 @@ def left3():
     print('left3')
     
 def right1():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('right1')
     
 
 def right2():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('right2')
     
 
 def right3():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('right3')
     
 
@@ -91,7 +91,7 @@ def duplex():
 m_path = 'models/gold/'
 
 models = [ m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
-           m_path+'right1.pmdl',m_path+'right2.pmdl', m_path+'right3.pmdl',
+           'models/right1.pmdl',m_path+'right2.pmdl', m_path+'right3.pmdl',
            # m_path+'start.pmdl', m_path+'ff.pmdl'
            ]
 

@@ -1,4 +1,4 @@
-from osx import snowboydecoder
+from rpi import snowboydecoder
 import sys
 import signal
 import RPi.GPIO as GPIO
@@ -6,6 +6,7 @@ import time
 import random
 
 pi = 2*1.30
+isGoing = False
 # pin per rasby
 leftWheels = 15
 rightWheels = 14
@@ -91,6 +92,8 @@ def right2():
     rightFor(pi/4)
 
 def right3():
+    isGoing = True
+    pi = 4*1.3
     print('right3')
     rightFor(pi/3)
 
@@ -109,11 +112,11 @@ def duplex():
 stop()
 models = [
           #'models/start.pmdl', 
-          'GoldModels/right1.pmdl', 
-          'GoldModels/right2.pmdl', 
-          'GoldModels/right3.pmdl', 
-          'GoldModels/left1.pmdl', 
-          'GoldModels/left2.pmdl',
+          'models/gold/right1.pmdl', 
+          'models/gold/right2.pmdl', 
+          'models/gold/right3.pmdl', 
+          'models/gold/left1.pmdl', 
+          'models/gold/left2.pmdl',
           'models/left3.pmdl', 
           'models/alt.pmdl'
           ]
@@ -121,7 +124,7 @@ models = [
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
-sensitivity = [.5]*len(models)
+sensitivity = [.465]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 callbacks = [
             #start,
