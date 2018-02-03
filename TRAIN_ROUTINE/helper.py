@@ -4,8 +4,12 @@ import pyaudio
 import wave
 import sys
 
+<<<<<<< HEAD
 <<<<<<< HEAD:TRAIN_ROUTINE/helper.py
 =======
+=======
+<<<<<<< HEAD:rpi-arm-raspbian-8.0-1.1.1/TRAIN_ROUTINE/helper.py
+>>>>>>> 3b31edc41ef3937797e5a58a332f2b339ce40feb
 def playSound():
 	chunk = 1024
 	# open the file for reading.
@@ -35,7 +39,12 @@ def playSound():
 
 
 
+<<<<<<< HEAD
 >>>>>>> 8a115b97fbd22d619d4359d6375b171efab035c5:rpi-arm-raspbian-8.0-1.1.1/TRAIN_ROUTINE/helper.py
+=======
+=======
+>>>>>>> 0416192c13468ec2eb022d4d98b548a950c01276:TRAIN_ROUTINE/helper.py
+>>>>>>> 3b31edc41ef3937797e5a58a332f2b339ce40feb
 def records(output, seconds):
 	print("AUDIO SIGNAL")
 	playSound()

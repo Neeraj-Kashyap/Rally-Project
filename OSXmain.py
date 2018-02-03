@@ -54,16 +54,8 @@ def right2():
     
 def right3():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('right3')
-
-def ff():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    print('ff')
-
-def start():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    print('start')
-
+    print('right1')
+    
 def duplex():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     if random.randrange(0,1) < 0.5: # inversione a sinistra
@@ -73,7 +65,6 @@ def duplex():
 
 
 m_path = 'models/gold/'
-
 models = [ m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
            'models/right1.pmdl',m_path+'right2.pmdl', m_path+'right3.pmdl',
            # m_path+'start.pmdl', m_path+'ff.pmdl'
@@ -82,8 +73,7 @@ models = [ m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
-sensitivity = [0.5]*len(models)
-
+sensitivity = [0.9]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 
 callbacks = [left1, left2, left3, 
