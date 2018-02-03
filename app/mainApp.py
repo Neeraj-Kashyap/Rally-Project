@@ -25,7 +25,7 @@ class App(QDialog):
         self.left = 0
         self.top = 0
         self.width = 800
-        self.height = 481
+        self.height = 500
         self.secProgressBar = 0
         self.trains_did = 0
         self.vc_obj = View_controller()
@@ -79,11 +79,12 @@ class App(QDialog):
         self.startTrain.clicked.connect(self.startTrain_clicked)
 
         self.progressBar = QProgressBar(self)
+        self.progressBar.setStyleSheet("font: 28pt;")
         self.progressBar.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.progressBar, 2, 0, 3, 0) 
 
         self.timer = QBasicTimer()
-        self.step = 0
+        self.pogressStatus = 0
 
         # create QVertical Layout
         vLayout = QVBoxLayout()
@@ -143,20 +144,24 @@ class App(QDialog):
         print (self.timer.isActive())
         if not self.timer.isActive():
             self.progressBar.show()
-            self.timer.start(22, self)
-            recordingThread = threading.Thread(target=ts.updateModel, args=['asasa', 'samples/', 'models/'])
+            self.timer.start(21.5, self)
+            recordingThread = threading.Thread(target=ts.updateModel, 
+                                               args=[self.model_selected, 
+                                                     'samples/', 
+                                                     'models/'+self.user_selected+'/', 
+                                                      self])
             recordingThread.start()
-            # self.step = 0
+            # self.pogressStatus = 0
             
     def timerEvent(self, event):
         #ts.updateModel('culomerdoso', 'samples/', 'models')
-        if self.step >= 300:
+        if self.pogressStatus >= 300:
             self.timer.stop()
-            #self.progressBar.hide()
-            self.step = 0
+            self.pogressStatus = 0
             return
-        self.step += 1
-        self.progressBar.setValue(self.step%100)
+        self.pogressStatus += 1
+        self.progressBar.setFormat(self.user_selected+' pronuncia: '+self.model_selected.upper())
+        self.progressBar.setValue(self.pogressStatus%100)
 
 
     def check_models_content(self):
