@@ -5,13 +5,17 @@
 # Nella schermata iniziale sara visualizzata la lista degli utenti sulla parte sinistra.
 # Nella parte destra si visualizzano gli addrestamenti
 
-import sys
+import sys, os
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QGroupBox, QDialog, QVBoxLayout, QListWidget, QLabel, QGridLayout, QSlider, QCheckBox, QProgressBar
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt, pyqtSlot, QBasicTimer
 from PyQt5 import QtCore
 import qdarkstyle
 import time
+
+from manage_lists import View_controller
+
+
 class App(QDialog):
  
     def __init__(self):
@@ -22,6 +26,10 @@ class App(QDialog):
         self.width = 800
         self.height = 500
         self.secProgressBar = 0
+        self.trains_did = 0
+        self.vc_obj = View_controller()
+        self.user_selected = 'gold'
+        self.model_selected = ' '
         self.initUI()
  
     def initUI(self):
@@ -37,23 +45,26 @@ class App(QDialog):
         self.show()
  
     def createGridlLayout(self):
+        
         self.horizontalGroupBox = QGroupBox("Vama")
         layout = QGridLayout()
         
         # below train services
         self.userList = QListWidget()
-        users = ['User 1', 'User 2', 'User 3']
+        # get user list
+        users = self.vc_obj.create_user_list()
+        #users = ['User 1', 'User 2', 'User 3']
         self.userList.addItems(users)
         self.userList.setFixedWidth(250)
+        self.userList.currentItemChanged.connect(self.user_clicked)
         layout.addWidget(self.userList, 0, 0)
-        # slider for speak
-        # ToDo
-        
 
         self.trainList = QListWidget()
-        trains_to_do = ['Left 1', 'Left 2', 'Left 3']
+        # get commands just did
+        trains_to_do = self.vc_obj.create_command_list('gold')
         self.trainList.addItems(trains_to_do)
         self.trainList.setFixedWidth(150)
+        self.trainList.currentItemChanged.connect(self.model_clicked)
         layout.addWidget(self.trainList, 0, 1)
 
         self.newUser = QPushButton('New user')
@@ -85,7 +96,7 @@ class App(QDialog):
         vLayout.addWidget(self.sliderSensitivity)
         # label for slider Sensitivity
         self.labelSens = QLabel(default)
-        self.labelSens.setStyleSheet('border: 1px solid black')
+        #self.labelSens.setStyleSheet('border: 1px solid black')
         self.labelSens.setAlignment(Qt.AlignCenter)
         self.labelSens.setFixedHeight(20)
         vLayout.addWidget(self.labelSens)
@@ -101,7 +112,7 @@ class App(QDialog):
         vLayout.addWidget(self.sliderTurning)
         # label for slider Sensitivity
         self.labelturning = QLabel(default)
-        self.labelturning.setStyleSheet('border: 1px solid black')
+        #self.labelturning.setStyleSheet('border: 1px solid black')
         self.labelturning.setAlignment(Qt.AlignCenter)
         self.labelturning.setFixedHeight(20)
         vLayout.addWidget(self.labelturning)
@@ -122,9 +133,16 @@ class App(QDialog):
  
     @pyqtSlot()
     def startTrain_clicked(self):
+        if self.trains_did >= 3:
+                self.startTrain.setText('Start train')
+                self.train_did = 0
+                self.progressBar.hide()
+                # da modificare 
+                return
+        self.trains_did += 1
         self.progressBar.show()
         cont = 0
-        self.startTrain.setText('Recording')
+        self.startTrain.setText('Recording ' + str(self.trains_did))
         if self.timer.isActive():
             print ("cazzo stai a fa")
         else:
@@ -142,7 +160,22 @@ class App(QDialog):
         self.step += 1
         self.progressBar.setValue(self.step)
 
+    def check_models_content(self):
+        dir_ = '../models/' + self.user_selected + '/'
 
+        for i in range(len(self.trainList)):
+            file_name = self.trainList.item(i)
+            for root, dirs, files in os.walk(dir_):
+                for file in files:
+                    if file.endswith('pmdl'):
+                        print (file)
+                        self.trainList.item(i).setBackground(QColor('#243427'))
+                        #print( os.path.getsize(dir_ + file), str(dir_+file) )
+                        #if (os.stat(dir_ + file).st_size) == 0:
+                         #   print('red')
+                          #  self.trainList.item(i).setBackground(QColor('#571B24'))
+                        #elif (os.stat(dir_ + file).st_size) > 0 :
+                            #self.trainList.item(i).setBackground(QColor('#243427')) # verde
 
     @pyqtSlot()
     def sensitivityChanged(self):
@@ -150,7 +183,24 @@ class App(QDialog):
 
     @pyqtSlot()    
     def turningChanged(self):
-        print ("porcoddio")
+        self.labelturning.setText(str(self.sliderTurning.value()))
+
+    @pyqtSlot()    
+    def user_clicked(self):
+        self.user_selected = self.userList.currentItem().text()
+        list_models = []
+        trains_to_do = self.vc_obj.create_command_list(self.user_selected)
+        for models in trains_to_do:
+            split = models.split('.')
+            list_models.append(split[0])
+        self.trainList.clear()
+        self.trainList.addItems(list_models)
+        # check the empy models and colors the items
+        self.check_models_content()
+
+    @pyqtSlot()    
+    def model_clicked(self):
+        self.model_selected = self.trainList.currentItem().text()
  
 if __name__ == '__main__':
     app = QApplication(sys.argv)
