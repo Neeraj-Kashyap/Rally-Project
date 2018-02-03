@@ -3,85 +3,69 @@ import sys
 import signal
 import time
 import random
-
+import csv
 #___________________________________________________________________________
 
-interrupted = False
+#read settings file 
+settingsReader = csv.reader( open('app/toRPI/settings.csv', "rb"), delimiter=' ')
+for row in settingsReader:
+    Sbase = row[0]
+    drive_s = row[1]
+    simple = row[2]
 
+
+pi = 2*1.30
+
+interrupted = False
+angles = [pi/12, pi/6, pi/3]
 
 def signal_handler(signal, frame):
     global interrupted
     interrupted = True
 
+
 def interrupt_callback():
     global interrupted
     return interrupted
 
-def getReady():
-    print('Car worked')
-    
-def start():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('start')
-    
-def ff():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('ff')
-    
-def stop():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('stop')
-# var pi is a global variable set to 180 deg
-def left1():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    print('Left1')
-    
-def left2():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    print('left2')
-    
-def left3():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    print('left3')
-    
-def right1():
-   snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-   print('right1')
-    
-def right2():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('right2')
-    
-def right3():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('right1')
-    
-def duplex():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    if random.randrange(0,1) < 0.5: # inversione a sinistra
-        leftFor(pi)
-    else:
-        rightFor(pi) # inversione a destra
 
+def left(i):
+    print('left'+str(i))
+    
 
-m_path = 'models/gold/'
-models = [ m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
-           'models/right1.pmdl',m_path+'right2.pmdl', m_path+'right3.pmdl',
-           # m_path+'start.pmdl', m_path+'ff.pmdl'
-           ]
+def right(i):
+    print('right'+str(i))
+
+def alt():
+    print("alt" ) 
+
+models = [
+          #'models/start.pmdl', 
+          'models/gold/right1.pmdl', 
+          'models/gold/right2.pmdl', 
+          'models/gold/right3.pmdl', 
+          'models/gold/left1.pmdl', 
+          'models/gold/left2.pmdl',
+          'models/gold/left3.pmdl', 
+          'models/alt.pmdl'
+          ]
 
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
-sensitivity = [0.9]*len(models)
+sensitivity = [.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
-
-callbacks = [left1, left2, left3, 
-             right1, right2, right3,
-             # start, ff
-             ]
-
+callbacks = [
+            #start,
+            right(1),
+            right(2),
+            right(3),
+            left(1),
+            left(2), 
+            left(3), 
+            alt]
 print('Listening... Press Ctrl+C to exit')
+
 # main loop
 # make sure you have the same numbers of callbacks and models
 detector.start(detected_callback=callbacks,
