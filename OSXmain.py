@@ -13,7 +13,6 @@ def signal_handler(signal, frame):
     global interrupted
     interrupted = True
 
-
 def interrupt_callback():
     global interrupted
     return interrupted
@@ -21,51 +20,41 @@ def interrupt_callback():
 def getReady():
     print('Car worked')
     
-
-
 def start():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('start')
     
-
 def ff():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('ff')
     
-
 def stop():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('stop')
-
 # var pi is a global variable set to 180 deg
 def left1():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('Left1')
     
-
 def left2():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left2')
     
-
 def left3():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('left3')
     
 def right1():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
-    print('right1')
+   snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
+   print('right1')
     
-
 def right2():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('right2')
     
-
 def right3():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
     print('right3')
-    
 
 def ff():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
@@ -74,11 +63,6 @@ def ff():
 def start():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
     print('start')
-
-def stop():
-    snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
-    print('stop')
-    
 
 def duplex():
     snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
@@ -99,6 +83,7 @@ models = [ m_path+'left1.pmdl',m_path+'left2.pmdl', m_path+'left3.pmdl',
 signal.signal(signal.SIGINT, signal_handler)
 
 sensitivity = [0.5]*len(models)
+
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 
 callbacks = [left1, left2, left3, 
@@ -107,7 +92,6 @@ callbacks = [left1, left2, left3,
              ]
 
 print('Listening... Press Ctrl+C to exit')
-
 # main loop
 # make sure you have the same numbers of callbacks and models
 detector.start(detected_callback=callbacks,

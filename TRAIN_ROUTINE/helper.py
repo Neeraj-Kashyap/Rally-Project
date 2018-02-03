@@ -1,24 +1,63 @@
 import pyaudio
-import wave
 import pygame
+import pyaudio
+import wave
+import sys
 
+<<<<<<< HEAD:TRAIN_ROUTINE/helper.py
+=======
+def playSound():
+	chunk = 1024
+	# open the file for reading.
+	wf = wave.open('../../sounds/training.wav', 'rb')
+
+	# create an audio object
+	p = pyaudio.PyAudio()
+
+	# open stream based on the wave object which has been input.
+	stream_ = p.open(format =
+                p.get_format_from_width(wf.getsampwidth()),
+                channels = wf.getnchannels(),
+                rate = wf.getframerate(),
+                output = True)
+
+	# read data (based on the chunk size)
+	data = wf.readframes(chunk)
+
+	# play stream (looping from beginning of file to the end)
+	while data != '':
+		stream_.write(data)
+		data = wf.readframes(chunk)
+	
+	# cleanup stuff.
+	stream_.close()    
+	p.terminate()
+
+
+
+>>>>>>> 8a115b97fbd22d619d4359d6375b171efab035c5:rpi-arm-raspbian-8.0-1.1.1/TRAIN_ROUTINE/helper.py
 def records(output, seconds):
+	print("AUDIO SIGNAL")
+	playSound()
+	#print("PARLARE ORA!")
+
+	
 	FORMAT = pyaudio.paInt16
 	CHANNELS = 1
 	RATE = 44100
 	CHUNK = 1024
 	RECORD_SECONDS = seconds
 	WAVE_OUTPUT_FILENAME = output
-	 
+
 	audio = pyaudio.PyAudio()
-	 
-	# start Recording
+
+	# start recording
 	stream = audio.open(format=FORMAT, channels=CHANNELS,
-	                rate=RATE, input=True,
-	                frames_per_buffer=CHUNK)
+					rate=RATE, input=True,
+					frames_per_buffer=CHUNK)
 
 	
-	print("PARLARE ORA!")
+	
 	frames = []
 	 
 	for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
