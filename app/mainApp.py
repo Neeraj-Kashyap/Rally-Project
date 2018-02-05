@@ -160,7 +160,7 @@ class App(QDialog):
             self.pogressStatus = 0
             return
         self.pogressStatus += 1
-        self.progressBar.setFormat(self.user_selected+' pronuncia: '+self.model_selected.upper())
+        self.progressBar.setFormat(self.user_selected+', pronuncia: '+self.model_selected.upper())
         self.progressBar.setValue(self.pogressStatus%100)
 
 

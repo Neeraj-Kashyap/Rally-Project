@@ -57,6 +57,7 @@ def updateModel(model, samples_path = "samples/", models_path = "../models/", ca
         caller.progressBar.setFormat('DONE')
     else:
         print ("Request failed.")
+        caller.progressBar.setFormat('Request failed, try again')
         print (response.text)
 
 
