@@ -3,7 +3,7 @@ import os
 
 class View_controller():
 	def __init__(self):
-		self.dir_models = '../models/'
+		self.dir_models = 'models/'
 		self.dirList = []
 
 	def create_user_list(self):

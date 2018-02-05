@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 from rpi import snowboydecoder
 import sys
 import signal
@@ -200,3 +202,4 @@ detector.start(detected_callback=callbacks,
                sleep_time=0.03)
 
 detector.terminam
+>>>>>>> 3b31edc41ef3937797e5a58a332f2b339ce40feb

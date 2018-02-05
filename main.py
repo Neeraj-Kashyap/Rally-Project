@@ -1,9 +1,18 @@
-from osx import snowboydecoder
+from rpi import snowboydecoder
 import sys
 import signal
 import RPi.GPIO as GPIO
 import time
 import random
+import csv
+
+#read settings file 
+settingsReader = csv.reader( open('userdata/settings.csv', "rb"), delimiter=' ')
+for row in settingsReader:
+    Sbase = row[0]
+    drive_s = row[1]
+    simple = row[2]
+
 
 pi = 2*1.30
 # pin per rasby
@@ -18,12 +27,6 @@ def straight():
 
 def stop():
     GPIO.output( (leftWheels, rightWheels), True )
-
-def straightFor( timeInSeconds ):
-    GPIO.output( (leftWheels, rightWheels), False )
-    time.sleep( timeInSeconds )
-    GPIO.output( (leftWheels, rightWheels), True )
-
 #To TURN LEFT use right wheels to gain the boost needed
 def leftFor( timeInSeconds ):
     stop()
@@ -42,7 +45,7 @@ def rightFor( timeInSeconds ):
 #___________________________________________________________________________
 
 interrupted = False
-
+angles = [pi/12, pi/6, pi/3]
 
 def signal_handler(signal, frame):
     global interrupted
@@ -51,71 +54,31 @@ def signal_handler(signal, frame):
 
 def interrupt_callback():
     global interrupted
+    stop()
     return interrupted
 
-def getReady():
-    print('Car worked')
-    straightFor(0.3)
-
-def start():
-    print('start')
-    straight()
-
 def alt():
-    print('alt')
+    print("alt")
     stop()
 
-# var pi is a global variable set to 180 deg
-def left1():
-    print('Left1')
-    leftFor(pi/12)
+def left(i):
+    print('left'+str(i))
+    leftFor( angles[i] )
 
-def left2():
-    print('left2')
-    leftFor(pi/4)
-
-def left3():
-    print('left3')
-    leftFor(pi/3)
-
-def left4():
-    print('left4')
-    leftFor(pi/2)
-
-def right1():
-    print('right1')
-    rightFor(pi/12)
-
-def right2():
-    print('right2')
-    rightFor(pi/4)
-
-def right3():
-    print('right3')
-    rightFor(pi/3)
-
-def right4():
-    print('right4')
-    rightFor(pi/2)
-
-def duplex():
-    print('inversione')
-    if random.randrange(0,1) < 0.5: # inversione a sinistra
-        leftFor(pi)
-    else:
-        rightFor(pi) # inversione a destra
-
+def right(i):
+    print('right'+str(i))
+    rightFor( angles[i] )
 
 stop()
 models = [
           #'models/start.pmdl', 
-          'GoldModels/right1.pmdl', 
-          'GoldModels/right2.pmdl', 
-          'GoldModels/right3.pmdl', 
-          'GoldModels/left1.pmdl', 
-          'GoldModels/left2.pmdl',
-          'models/left3.pmdl', 
-          'models/alt.pmdl'
+          'userdata/right1.pmdl', 
+          'userdata/right2.pmdl', 
+          'userdata/right3.pmdl', 
+          'userdata/left1.pmdl', 
+          'userdata/left2.pmdl',
+          'userdata/left3.pmdl', 
+          'userdata/stop.pmdl'
           ]
 
 # capture SIGINT signal, e.g., Ctrl+C
@@ -125,12 +88,12 @@ sensitivity = [.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 callbacks = [
             #start,
-            right1,
-            right2,
-            right3,
-            left1,
-            left2, 
-            left3, 
+            right(1),
+            right(2),
+            right(3),
+            left(1),
+            left(2), 
+            left(3), 
             alt]
 print('Listening... Press Ctrl+C to exit')
 

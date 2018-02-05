@@ -25,7 +25,9 @@ def updateModel(model, samples_path = "samples/", models_path = "../models/", re
     #record and store.
     #note that function record in defined in helper.py
     wav1 = helper.records(samples_path+model+"1.wav", recTime)
+
     wav2 = helper.records(samples_path+model+"2.wav", recTime)
+    
     wav3 = helper.records(samples_path+model+"3.wav", recTime)
     #pick model
     out = models_path+model+".pmdl"

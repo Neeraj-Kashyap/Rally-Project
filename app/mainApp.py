@@ -4,15 +4,16 @@
 # Un nuovo utente puo creare un nuovo profilo e cominciare l'addrestamento
 # Nella schermata iniziale sara visualizzata la lista degli utenti sulla parte sinistra.
 # Nella parte destra si visualizzano gli addrestamenti
-
+import threading
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QGroupBox, QDialog, QVBoxLayout, QListWidget, QLabel, QGridLayout, QSlider, QCheckBox, QProgressBar
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QGroupBox, QDialog, QVBoxLayout, QListWidget, QLabel, QGridLayout, QSlider, QCheckBox, QProgressBar, QLineEdit
 from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt, pyqtSlot, QBasicTimer
 from PyQt5 import QtCore
 import qdarkstyle
 import time
-
+from train_routine import training_service as ts
+from synchronizer import sftp_controller as sftp
 from manage_lists import View_controller
 
 
@@ -46,48 +47,53 @@ class App(QDialog):
  
     def createGridlLayout(self):
         
-        self.horizontalGroupBox = QGroupBox("Vama")
-        layout = QGridLayout()
+        self.horizontalGroupBox = QGroupBox("Super Rally Car")
+        self.layout = QGridLayout()
         
         # below train services
         self.userList = QListWidget()
+        self.userList.setStyleSheet("font: 28pt;")
         # get user list
         users = self.vc_obj.create_user_list()
-        #users = ['User 1', 'User 2', 'User 3']
         self.userList.addItems(users)
         self.userList.setFixedWidth(250)
         self.userList.currentItemChanged.connect(self.user_clicked)
-        layout.addWidget(self.userList, 0, 0)
+        self.layout.addWidget(self.userList, 0, 0)
 
         self.trainList = QListWidget()
+        self.trainList.setStyleSheet("font: 24pt;")
         # get commands just did
         trains_to_do = self.vc_obj.create_command_list('gold')
         self.trainList.addItems(trains_to_do)
         self.trainList.setFixedWidth(150)
         self.trainList.currentItemChanged.connect(self.model_clicked)
-        layout.addWidget(self.trainList, 0, 1)
+        self.layout.addWidget(self.trainList, 0, 1)
+
+        self.usrLayout = QVBoxLayout()
 
         self.newUser = QPushButton('New user')
-        layout.addWidget(self.newUser, 1, 0)
+        self.newUser.clicked.connect(self.create_newUser)
+        self.usrLayout.addWidget(self.newUser)
+        self.layout.addLayout(self.usrLayout, 1, 0)
         
-        self.startTrain = QPushButton('Start Train')
-        layout.addWidget(self.startTrain, 1, 1)
+        self.startTrain = QPushButton('Train Model')
+        self.layout.addWidget(self.startTrain, 1, 1)
         self.startTrain.clicked.connect(self.startTrain_clicked)
 
         self.progressBar = QProgressBar(self)
+        self.progressBar.setStyleSheet("font: 24pt;")
         self.progressBar.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.progressBar, 2, 0, 3, 0) 
-        self.progressBar.hide()
+        self.layout.addWidget(self.progressBar, 2, 0, 3, 0) 
 
         self.timer = QBasicTimer()
-        self.step = 0
+        self.pogressStatus = 0
 
         # create QVertical Layout
         vLayout = QVBoxLayout()
         # slider for Sensitivity
         self.sliderSensitivity = QSlider(QtCore.Qt.Horizontal)
         default = str(50)
-        self.sliderSensitivity.setMinimum(30)
+        self.sliderSensitivity.setMinimum(20)
         self.sliderSensitivity.setMaximum(80)
         self.sliderSensitivity.setValue(int(default))
         self.sliderSensitivity.setTickPosition(QSlider.TicksBelow)
@@ -102,9 +108,9 @@ class App(QDialog):
         vLayout.addWidget(self.labelSens)
         # slider for turning
         self.sliderTurning = QSlider(QtCore.Qt.Horizontal)
-        default = str(2)
+        default = str(4)
         self.sliderTurning.setMinimum(1)
-        self.sliderTurning.setMaximum(10)
+        self.sliderTurning.setMaximum(7)
         self.sliderTurning.setValue(int(default))
         self.sliderTurning.setTickPosition(QSlider.TicksBelow)
         self.sliderTurning.setTickInterval(1)
@@ -118,57 +124,54 @@ class App(QDialog):
         vLayout.addWidget(self.labelturning)
 
         # check box for easy drive mode
-        self.easyDrive = QCheckBox('Easy Drive mode', self)
+        self.easyDrive = QCheckBox('Easy Drive mode (only Left & Right) - BETA', self)
         #easyDrive.toggle()
         self.easyDrive.stateChanged.connect(self.turningChanged)
         vLayout.addWidget(self.easyDrive)
         
 
+        self.syncButton = QPushButton('Synchronize')
+        self.layout.addWidget(self.syncButton, 1, 2)
+        self.syncButton.clicked.connect(self.syncClicked)
         # add vertical layout to grid layout
-        layout.addLayout(vLayout, 0, 2)
+        self.layout.addLayout(vLayout, 0, 2)
 
-        self.horizontalGroupBox.setLayout(layout)
+        self.horizontalGroupBox.setLayout(self.layout)
 
- 
- 
     @pyqtSlot()
     def startTrain_clicked(self):
-        if self.trains_did >= 3:
-                self.startTrain.setText('Start train')
-                self.train_did = 0
-                self.progressBar.hide()
-                # da modificare 
-                return
-        self.trains_did += 1
-        self.progressBar.show()
-        cont = 0
-        self.startTrain.setText('Recording ' + str(self.trains_did))
-        if self.timer.isActive():
-            print ("cazzo stai a fa")
-        else:
-            while cont < 3:
-                cont += 1
-                self.timer.start(20, self)  
-                self.step = 0
-                self.progressBar.setValue(self.step)
-
-
+        # self.startTrain.setText('Recording ' + str(self.trains_did))
+        print (self.timer.isActive())
+        if not self.timer.isActive():
+            self.progressBar.show()
+            self.timer.start(21.5, self)
+            recordingThread = threading.Thread(target=ts.updateModel, 
+                                               args=[self.model_selected, 
+                                                     'samples/', 
+                                                     'models/'+self.user_selected+'/', 
+                                                      self])
+            recordingThread.start()
+            # self.pogressStatus = 0
+            
     def timerEvent(self, event):
-        if self.step >= 100:
+        #ts.updateModel('culomerdoso', 'samples/', 'models')
+        if self.pogressStatus >= 300:
             self.timer.stop()
+            self.pogressStatus = 0
             return
-        self.step += 1
-        self.progressBar.setValue(self.step)
+        self.pogressStatus += 1
+        self.progressBar.setFormat(self.user_selected+' pronuncia: '+self.model_selected.upper())
+        self.progressBar.setValue(self.pogressStatus%100)
+
 
     def check_models_content(self):
-        dir_ = '../models/' + self.user_selected + '/'
+        dir_ = 'models/' + self.user_selected + '/'
 
         for i in range(len(self.trainList)):
             file_name = self.trainList.item(i)
             for root, dirs, files in os.walk(dir_):
                 for file in files:
                     if file.endswith('pmdl'):
-                        print (file)
                         self.trainList.item(i).setBackground(QColor('#243427'))
                         #print( os.path.getsize(dir_ + file), str(dir_+file) )
                         #if (os.stat(dir_ + file).st_size) == 0:
@@ -184,6 +187,50 @@ class App(QDialog):
     @pyqtSlot()    
     def turningChanged(self):
         self.labelturning.setText(str(self.sliderTurning.value()))
+
+    @pyqtSlot()    
+    def create_newUser(self):
+        self.newUser.hide()
+        
+        width = self.newUser.frameGeometry().width()
+        height = self.newUser.frameGeometry().height()
+        self.userLine = QLineEdit()
+        self.userLine.setFixedWidth(width)
+        self.userLine.setFixedHeight(height)
+        self.userLine.setStyleSheet("color: #595c5f;")
+        self.userLine.setPlaceholderText('Insert name...')
+
+        self.save_user_btn = QPushButton('Save')
+        self.save_user_btn.setFixedWidth(width)
+        self.save_user_btn.setFixedHeight(height)
+        self.save_user_btn.clicked.connect(self.save_user)
+
+        self.usrLayout.addWidget(self.userLine)
+        self.usrLayout.addWidget(self.save_user_btn)
+        
+        #self.layout.addLayout(self.usrLayout, 1, 0)
+        #self.layout.addWidget(self.newUser, 1, 0)
+
+    @pyqtSlot()    
+    def save_user(self):
+        path = 'models/'
+        if not str(self.userLine.text()):
+            os.mkdir(os.path.join(path,'noName'))
+            path += 'noName'
+        else:
+            os.mkdir(os.path.join(path,str(self.userLine.text())))
+            path += str(self.userLine.text())
+        files = ['left1', 'left2', 'left3', 'right1', 'right2', 'right3', 'start', 'stop']
+        for file in files:
+            file += '.pmdl'
+            open(os.path.join(path, file), 'w').close()
+        # tolgo il layout inserito
+        self.userLine.hide()
+        self.save_user_btn.hide()
+        self.newUser.show()
+        self.userList.addItem(str(self.userLine.text()))
+        
+        
 
     @pyqtSlot()    
     def user_clicked(self):
@@ -202,6 +249,18 @@ class App(QDialog):
     def model_clicked(self):
         self.model_selected = self.trainList.currentItem().text()
  
+    @pyqtSlot()    
+    def syncClicked(self):
+        print(self.user_selected)
+        result = sftp.synchronizeUser(self.user_selected, 
+                                      self.sliderSensitivity.value()/100, 
+                                      self.sliderTurning.value(), 
+                                      self.easyDrive.isChecked())
+        if not result:
+            self.syncButton.setStyleSheet("background-color: #571B24")
+        else:
+            self.syncButton.setStyleSheet("background-color: #243427")
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
