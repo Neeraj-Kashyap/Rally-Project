@@ -54,7 +54,6 @@ def signal_handler(signal, frame):
 
 def interrupt_callback():
     global interrupted
-    stop()
     return interrupted
 
 def alt():
@@ -63,11 +62,11 @@ def alt():
 
 def left(i):
     print('left'+str(i))
-    leftFor( angles[i] )
+    leftFor( angles[i-1] )
 
 def right(i):
     print('right'+str(i))
-    rightFor( angles[i] )
+    rightFor( angles[i-1] )
 
 stop()
 models = [
@@ -88,12 +87,12 @@ sensitivity = [.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 callbacks = [
             #start,
-            right(1),
-            right(2),
-            right(3),
-            left(1),
-            left(2), 
-            left(3), 
+            lambda: right(1),
+            lambda: right(2),
+            lambda: right(3),
+            lambda: left(1),
+            lambda: left(2), 
+            lambda: left(3), 
             alt]
 print('Listening... Press Ctrl+C to exit')
 

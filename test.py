@@ -1,0 +1,5 @@
+from rpi import snowboydecoder
+
+snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)
+snowboydecoder.play_audio_file(snowboydecoder.DETECT_DING)
+snowboydecoder.play_audio_file(snowboydecoder.DETECT_DONG)

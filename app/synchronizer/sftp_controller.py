@@ -11,7 +11,7 @@ def synchronizeUser(user, sensitivity=.5, drive_s=.5, simple=False):
 	ofile.close()
 	status = False
 	try:
-		srv = pysftp.Connection(host="rasby", 
+		srv = pysftp.Connection(host="rasby.local", 
 								username="pi",
 								password="raspberry")
 
