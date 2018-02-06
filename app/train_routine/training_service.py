@@ -55,8 +55,10 @@ def updateModel(model, samples_path = "samples/", models_path = "../models/", ca
             outfile.write(response.content)
         print("Saved model to '%s'." % out)
         caller.progressBar.setFormat('DONE')
+        caller.check_models_content()
     else:
         print ("Request failed.")
+        caller.progressBar.setFormat('Request failed, try again')
         print (response.text)
 
 

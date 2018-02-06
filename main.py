@@ -7,10 +7,10 @@ import random
 import csv
 
 #read settings file 
-settingsReader = csv.reader( open('userdata/settings.csv', "rb"), delimiter=' ')
+settingsReader = csv.reader( open('/home/pi/Desktop/Rally-Project/userdata/settings.csv', "rb"), delimiter=' ')
 for row in settingsReader:
-    Sbase = row[0]
-    drive_s = row[1]
+    Sbase = float(row[0])
+    drive_s = float(row[1])/2
     simple = row[2]
 
 
@@ -54,31 +54,30 @@ def signal_handler(signal, frame):
 
 def interrupt_callback():
     global interrupted
-    stop()
     return interrupted
 
-def alt():
+def stopVeichle():
     print("alt")
     stop()
 
 def left(i):
     print('left'+str(i))
-    leftFor( angles[i] )
+    leftFor( angles[i-1]*drive_s )
 
 def right(i):
     print('right'+str(i))
-    rightFor( angles[i] )
+    rightFor( angles[i-1]*drive_s )
 
 stop()
 models = [
           #'models/start.pmdl', 
-          'userdata/right1.pmdl', 
-          'userdata/right2.pmdl', 
-          'userdata/right3.pmdl', 
-          'userdata/left1.pmdl', 
-          'userdata/left2.pmdl',
-          'userdata/left3.pmdl', 
-          'userdata/stop.pmdl'
+          '/home/pi/Desktop/Rally-Project/userdata/right1.pmdl', 
+          '/home/pi/Desktop/Rally-Project/userdata/right2.pmdl', 
+          '/home/pi/Desktop/Rally-Project/userdata/right3.pmdl', 
+          '/home/pi/Desktop/Rally-Project/userdata/left1.pmdl', 
+          '/home/pi/Desktop/Rally-Project/userdata/left2.pmdl',
+          '/home/pi/Desktop/Rally-Project/userdata/left3.pmdl', 
+          '/home/pi/Desktop/Rally-Project/userdata/stop.pmdl'
           ]
 
 # capture SIGINT signal, e.g., Ctrl+C
@@ -88,13 +87,13 @@ sensitivity = [.5]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 callbacks = [
             #start,
-            right(1),
-            right(2),
-            right(3),
-            left(1),
-            left(2), 
-            left(3), 
-            alt]
+            lambda: right(1),
+            lambda: right(2),
+            lambda: right(3),
+            lambda: left(1),
+            lambda: left(2), 
+            lambda: left(3), 
+            stopVeichle]
 print('Listening... Press Ctrl+C to exit')
 
 # main loop
