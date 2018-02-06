@@ -33,7 +33,7 @@ def updateModel(model, samples_path = "samples/", models_path = "../models/", ca
     # #pick model
     out = models_path+model+".pmdl"
     #From below some seconds needed: uploading + computing + responding
-    caller.progressBar.setFormat("just one moment, i'm working out")
+    caller.progressBar.setFormat("wait ...")
     print("now i'm having workout")
     data = {
         "name": model,
@@ -55,6 +55,8 @@ def updateModel(model, samples_path = "samples/", models_path = "../models/", ca
             outfile.write(response.content)
         print("Saved model to '%s'." % out)
         caller.progressBar.setFormat('DONE')
+        caller.check_models_content()
+        caller.trainList.repaint()
     else:
         print ("Request failed.")
         caller.progressBar.setFormat('Request failed, try again')

@@ -18,6 +18,7 @@ class View_controller():
 			for file in files:
 				if file.endswith('pmdl'):
 					commands_list.append(file)
+				
 		return commands_list
 
 

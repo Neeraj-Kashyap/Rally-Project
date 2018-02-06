@@ -5,6 +5,7 @@
 # Nella schermata iniziale sara visualizzata la lista degli utenti sulla parte sinistra.
 # Nella parte destra si visualizzano gli addrestamenti
 import threading
+import subprocess
 import sys, os
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QGroupBox, QDialog, QVBoxLayout, QListWidget, QLabel, QGridLayout, QSlider, QCheckBox, QProgressBar, QLineEdit
 from PyQt5.QtGui import QIcon, QColor
@@ -15,7 +16,7 @@ import time
 from train_routine import training_service as ts
 from synchronizer import sftp_controller as sftp
 from manage_lists import View_controller
-
+from ssh_conn import ssh
 
 class App(QDialog):
  
@@ -31,7 +32,9 @@ class App(QDialog):
         self.vc_obj = View_controller()
         self.user_selected = 'gold'
         self.model_selected = 'undefined'
+        self.car_on = False
         self.initUI()
+        self.conn = None
  
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -53,7 +56,7 @@ class App(QDialog):
         
         # below train services
         self.userList = QListWidget()
-        self.userList.setStyleSheet("font: 28pt;")
+        self.userList.setStyleSheet("font: 22pt;")
         # get user list
         users = self.vc_obj.create_user_list()
         self.userList.addItems(users)
@@ -63,7 +66,7 @@ class App(QDialog):
         self.layout.addWidget(self.userList, 0, 0)
 
         self.trainList = QListWidget()
-        self.trainList.setStyleSheet("font: 24pt;")
+        self.trainList.setStyleSheet("font: 20pt;")
         # get commands just did
         trains_to_do = self.vc_obj.create_command_list('gold')
         self.trainList.addItems(trains_to_do)
@@ -88,7 +91,7 @@ class App(QDialog):
         self.layout.addWidget(self.progressBar, 2, 0, 3, 0) 
 
         self.startCar = QPushButton('START')
-        #self.startCar.clicked.connect()
+        self.startCar.clicked.connect(self.toggle_car)
         self.layout.addWidget(self.startCar, 10, 0, 4, 0) 
 
         self.timer = QBasicTimer()
@@ -96,9 +99,16 @@ class App(QDialog):
 
         # create QVertical Layout
         vLayout = QVBoxLayout()
+
+        # title label for sens
+        default = str(50)
+        str_sens = 'Car Sensitivity: ' + default
+        self.titleSens = QLabel(str_sens)
+        self.titleSens.setAlignment(Qt.AlignCenter)
+        self.titleSens.setFixedHeight(40)
+        vLayout.addWidget(self.titleSens)
         # slider for Sensitivity
         self.sliderSensitivity = QSlider(QtCore.Qt.Horizontal)
-        default = str(50)
         self.sliderSensitivity.setMinimum(20)
         self.sliderSensitivity.setMaximum(80)
         self.sliderSensitivity.setValue(int(default))
@@ -106,15 +116,17 @@ class App(QDialog):
         self.sliderSensitivity.setTickInterval(2)
         self.sliderSensitivity.valueChanged.connect(self.sensitivityChanged)
         vLayout.addWidget(self.sliderSensitivity)
-        # label for slider Sensitivity
-        self.labelSens = QLabel(default)
-        #self.labelSens.setStyleSheet('border: 1px solid black')
-        self.labelSens.setAlignment(Qt.AlignCenter)
-        self.labelSens.setFixedHeight(20)
-        vLayout.addWidget(self.labelSens)
+        
+         # title label for sens
+        default = str(4)
+        str_turning = 'Car Turning: ' + default
+        self.titleTurn = QLabel(str_turning)
+        self.titleTurn.setAlignment(Qt.AlignCenter)
+        self.titleTurn.setFixedHeight(40)
+        #self.titleTurn.setFixedWidth(200)
+        vLayout.addWidget(self.titleTurn)
         # slider for turning
         self.sliderTurning = QSlider(QtCore.Qt.Horizontal)
-        default = str(4)
         self.sliderTurning.setMinimum(1)
         self.sliderTurning.setMaximum(7)
         self.sliderTurning.setValue(int(default))
@@ -122,20 +134,13 @@ class App(QDialog):
         self.sliderTurning.setTickInterval(1)
         self.sliderTurning.valueChanged.connect(self.turningChanged)
         vLayout.addWidget(self.sliderTurning)
-        # label for slider Sensitivity
-        self.labelturning = QLabel(default)
-        #self.labelturning.setStyleSheet('border: 1px solid black')
-        self.labelturning.setAlignment(Qt.AlignCenter)
-        self.labelturning.setFixedHeight(20)
-        vLayout.addWidget(self.labelturning)
-
+        
         # check box for easy drive mode
         self.easyDrive = QCheckBox('Easy Drive mode (only Left & Right) - BETA', self)
         #easyDrive.toggle()
         self.easyDrive.stateChanged.connect(self.turningChanged)
         vLayout.addWidget(self.easyDrive)
         
-
         self.syncButton = QPushButton('Synchronize')
         self.layout.addWidget(self.syncButton, 1, 2)
 
@@ -144,6 +149,9 @@ class App(QDialog):
         self.layout.addLayout(vLayout, 0, 2)
 
         self.horizontalGroupBox.setLayout(self.layout)
+        #select first rows
+        self.userList.setCurrentRow( 0 )
+        self.trainList.setCurrentRow( 0 )
 
     @pyqtSlot()
     def startTrain_clicked(self):
@@ -168,33 +176,41 @@ class App(QDialog):
             self.pogressStatus = 0
             return
         self.pogressStatus += 1
-        self.progressBar.setFormat(self.user_selected+', pronuncia: '+self.model_selected.upper())
-        self.progressBar.setValue(self.pogressStatus%100)
+        self.progressBar.setFormat( self.model_selected.upper() ) 
+        self.progressBar.setValue( self.pogressStatus%100 )
 
 
     def check_models_content(self):
         dir_ = 'models/' + self.user_selected + '/'
-
         for i in range(len(self.trainList)):
-            file_name = self.trainList.item(i)
-            for root, dirs, files in os.walk(dir_):
-                for file in files:
-                    if file.endswith('pmdl'):
-                        self.trainList.item(i).setBackground(QColor('#243427'))
-                        #print( os.path.getsize(dir_ + file), str(dir_+file) )
-                        #if (os.stat(dir_ + file).st_size) == 0:
-                         #   print('red')
-                          #  self.trainList.item(i).setBackground(QColor('#571B24'))
-                        #elif (os.stat(dir_ + file).st_size) > 0 :
-                            #self.trainList.item(i).setBackground(QColor('#243427')) # verde
+            model_path = dir_ + self.trainList.item(i).text() + '.pmdl'
+            statinfo = os.stat(model_path)
+            if statinfo.st_size == 0:
+                self.trainList.item(i).setIcon(QIcon('icons/unchecked.png'))
+            else:
+                self.trainList.item(i).setIcon(QIcon('icons/checked.png'))
+
+    @pyqtSlot()    
+    def toggle_car(self):
+        self.syncButton.setStyleSheet("")
+        if not self.car_on: # car off
+            self.conn = ssh('rasby.local', 'pi', 'raspberry', caller=self)
+            self.conn.sendCommand("python /home/pi/Desktop/Rally-Project/main.py")
+        else: # car on
+            self.conn.sendCommand("killall python; python /home/pi/Desktop/Rally-Project/STOP.py")
+            self.startCar.setText('Start')
+            self.startCar.setStyleSheet('Background: none')
+            self.car_on = False
 
     @pyqtSlot()
     def sensitivityChanged(self):
-        self.labelSens.setText(str(self.sliderSensitivity.value()))
+        str_sens = 'Car Sensitivity: ' + str(self.sliderSensitivity.value())
+        self.titleSens.setText(str_sens)
 
     @pyqtSlot()    
     def turningChanged(self):
-        self.labelturning.setText(str(self.sliderTurning.value()))
+        str_turning = 'Car Turning: ' + str(self.sliderTurning.value())
+        self.titleTurn.setText(str_turning)
 
     @pyqtSlot()    
     def create_newUser(self):
@@ -212,7 +228,8 @@ class App(QDialog):
         self.save_user_btn.setFixedWidth(width)
         self.save_user_btn.setFixedHeight(height)
         self.save_user_btn.clicked.connect(self.save_user)
-
+        self.userLine.setFocus(True)
+        self.userLine.raise_()
         self.usrLayout.addWidget(self.userLine)
         self.usrLayout.addWidget(self.save_user_btn)
         
@@ -226,7 +243,7 @@ class App(QDialog):
         else:
             os.mkdir(os.path.join(path,str(self.userLine.text())))
             path += str(self.userLine.text())
-        files = ['left1', 'left2', 'left3', 'right1', 'right2', 'right3', 'start', 'stop']
+        files = ['left1', 'left2', 'left3', 'right1', 'right2', 'right3', 'start', 'stop', 'right-simple', 'left-simple']
         for file in files:
             file += '.pmdl'
             open(os.path.join(path, file), 'w').close()
@@ -250,6 +267,7 @@ class App(QDialog):
         self.trainList.addItems(list_models)
         # check the empy models and colors the items
         self.check_models_content()
+        self.trainList.setCurrentRow( 0 )
 
     @pyqtSlot()    
     def model_clicked(self):
