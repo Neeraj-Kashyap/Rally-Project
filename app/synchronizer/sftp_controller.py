@@ -24,7 +24,9 @@ def synchronizeUser(user, sensitivity=.5, drive_s=.5, simple=False):
 			srv.put( modelsDir+user+'/left3.pmdl' )
 			srv.put( modelsDir+user+'/right1.pmdl' )	
 			srv.put( modelsDir+user+'/right2.pmdl' )
-			srv.put( modelsDir+user+'/right3.pmdl' )
+			srv.put( modelsDir+user+'/right3.pmdl' )	
+			srv.put( modelsDir+user+'/right-simple.pmdl' )
+			srv.put( modelsDir+user+'/left-simple.pmdl' )
 			srv.put( modelsDir+user+'/stop.pmdl' )
 			srv.put( modelsDir+user+'/start.pmdl' )
 

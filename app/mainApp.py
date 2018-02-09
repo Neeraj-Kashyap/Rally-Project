@@ -159,6 +159,8 @@ class App(QDialog):
             self.progressBar.setValue(0)
             self.progressBar.setFormat('seleziona un modello')
         elif not self.timer.isActive():
+            index = self.trainList.currentRow()
+            self.trainList.item(index).setIcon(QIcon('icons/unchecked.png'))
             self.progressBar.show()
             self.timer.start(21.5, self)
             recordingThread = threading.Thread(target=ts.updateModel, 
@@ -195,6 +197,7 @@ class App(QDialog):
         self.syncButton.setStyleSheet("")
         if not self.car_on: # car off
             self.conn = ssh('rasby.local', 'pi', 'raspberry', caller=self)
+            #self.conn.sendCommand("pulseaudio --start ; /bin/echo -e 'connect 1C:52:16:53:72:D5 \n exit \n' | bluetoothctl")
             self.conn.sendCommand("python /home/pi/Desktop/Rally-Project/main.py")
         else: # car on
             self.conn.sendCommand("killall python; python /home/pi/Desktop/Rally-Project/STOP.py")
