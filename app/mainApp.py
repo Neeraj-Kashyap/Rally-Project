@@ -47,7 +47,8 @@ class App(QDialog):
         self.setLayout(windowLayout)
  
         self.show()
- 
+
+
     def createGridlLayout(self):
         
         self.horizontalGroupBox = QGroupBox("Super Rally Car")
@@ -70,33 +71,67 @@ class App(QDialog):
         # get commands just did
         trains_to_do = self.vc_obj.create_command_list('gold')
         self.trainList.addItems(trains_to_do)
-        self.trainList.setFixedWidth(150)
+        self.trainList.setFixedWidth(180)
         self.trainList.currentItemChanged.connect(self.model_clicked)
         self.layout.addWidget(self.trainList, 0, 1)
+        
+        
 
-        self.usrLayout = QVBoxLayout()
+        
+        
+        #self.userLine.setFixedWidth(width)
+        #self.userLine.setFixedHeight(height)
+        #self.userLine.setStyleSheet("color: #595c5f;")
+        
+        #
+        #self.usrLayout.addWidget(self.userLine)
+        #self.layout.addLayout(self.usrLayout, 1, 0)
 
-        self.newUser = QPushButton('New user')
+        '''self.newUser = QPushButton('1. Click and create your avatar')
         self.newUser.clicked.connect(self.create_newUser)
         self.usrLayout.addWidget(self.newUser)
-        self.layout.addLayout(self.usrLayout, 1, 0)
+        self.layout.addLayout(self.usrLayout, 1, 0)'''
         
-        self.startTrain = QPushButton('Train Model')
+        self.startTrain = QPushButton('2. Select a model and click here to train', default=False, autoDefault = False)
         self.layout.addWidget(self.startTrain, 1, 1)
         self.startTrain.clicked.connect(self.startTrain_clicked)
+
 
         self.progressBar = QProgressBar(self)
         self.progressBar.setStyleSheet("font: 24pt;")
         self.progressBar.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.progressBar, 2, 0, 3, 0) 
 
-        self.startCar = QPushButton('START')
+        self.startCar = QPushButton('START WITH THE DRIVE!', default=False, autoDefault = False)
         self.startCar.clicked.connect(self.toggle_car)
         self.layout.addWidget(self.startCar, 10, 0, 4, 0) 
 
         self.timer = QBasicTimer()
         self.pogressStatus = 0
 
+        self.syncButton = QPushButton('3. Send your settings to mini car', default=False, autoDefault = False)
+        self.layout.addWidget(self.syncButton, 1, 2)
+
+        self.syncButton.clicked.connect(self.syncClicked)
+        # add vertical layout to grid layout
+        #self.layout.addLayout(vLayout, 0, 2)
+
+        self.userLine = QLineEdit()
+        self.userLine.setPlaceholderText('Type your name and click enter')
+        #self.userLine.setFocus()
+        self.userLine.returnPressed.connect(self.save_user)
+        self.layout.addWidget(self.userLine, 1, 0)
+
+        #self.create_advanced_layout()
+
+
+        self.horizontalGroupBox.setLayout(self.layout)
+        #select first rows
+        self.userList.setCurrentRow( 0 )
+        self.trainList.setCurrentRow( 0 )
+
+    def create_advanced_layout(self):
+        # create the advanced settings layout
         # create QVertical Layout
         vLayout = QVBoxLayout()
 
@@ -140,25 +175,19 @@ class App(QDialog):
         #easyDrive.toggle()
         self.easyDrive.stateChanged.connect(self.turningChanged)
         vLayout.addWidget(self.easyDrive)
-        
-        self.syncButton = QPushButton('Synchronize')
-        self.layout.addWidget(self.syncButton, 1, 2)
 
-        self.syncButton.clicked.connect(self.syncClicked)
-        # add vertical layout to grid layout
-        self.layout.addLayout(vLayout, 0, 2)
+        return vLayout
 
-        self.horizontalGroupBox.setLayout(self.layout)
-        #select first rows
-        self.userList.setCurrentRow( 0 )
-        self.trainList.setCurrentRow( 0 )
-
+        #self.layout.addLayout(vLayout, 0, 2)
+ 
     @pyqtSlot()
     def startTrain_clicked(self):
         if self.model_selected == 'undefined':
             self.progressBar.setValue(0)
             self.progressBar.setFormat('seleziona un modello')
         elif not self.timer.isActive():
+            index = self.trainList.currentRow()
+            self.trainList.item(index).setIcon(QIcon('icons/unchecked.png'))
             self.progressBar.show()
             self.timer.start(21.5, self)
             recordingThread = threading.Thread(target=ts.updateModel, 
@@ -195,6 +224,7 @@ class App(QDialog):
         self.syncButton.setStyleSheet("")
         if not self.car_on: # car off
             self.conn = ssh('rasby.local', 'pi', 'raspberry', caller=self)
+            #self.conn.sendCommand("pulseaudio --start ; /bin/echo -e 'connect 1C:52:16:53:72:D5 \n exit \n' | bluetoothctl")
             self.conn.sendCommand("python /home/pi/Desktop/Rally-Project/main.py")
         else: # car on
             self.conn.sendCommand("killall python; python /home/pi/Desktop/Rally-Project/STOP.py")
@@ -218,13 +248,9 @@ class App(QDialog):
         
         width = self.newUser.frameGeometry().width()
         height = self.newUser.frameGeometry().height()
-        self.userLine = QLineEdit()
-        self.userLine.setFixedWidth(width)
-        self.userLine.setFixedHeight(height)
-        self.userLine.setStyleSheet("color: #595c5f;")
-        self.userLine.setPlaceholderText('Insert name...')
+        
 
-        self.save_user_btn = QPushButton('Save')
+        self.save_user_btn = QPushButton('Save personal avatar')
         self.save_user_btn.setFixedWidth(width)
         self.save_user_btn.setFixedHeight(height)
         self.save_user_btn.clicked.connect(self.save_user)
@@ -232,6 +258,8 @@ class App(QDialog):
         self.userLine.raise_()
         self.usrLayout.addWidget(self.userLine)
         self.usrLayout.addWidget(self.save_user_btn)
+
+
         
 
     @pyqtSlot()    
@@ -248,10 +276,12 @@ class App(QDialog):
             file += '.pmdl'
             open(os.path.join(path, file), 'w').close()
         # tolgo il layout inserito
-        self.userLine.hide()
-        self.save_user_btn.hide()
-        self.newUser.show()
+        #self.userLine.hide()
+        #self.save_user_btn.hide()
+        #self.newUser.show()
+        #self.userLine.setText('Type your name and click enter')
         self.userList.addItem(str(self.userLine.text()))
+        #self.userList.setCurrentRow( len(self.userList) - 1 )
         
         
 
@@ -287,6 +317,10 @@ class App(QDialog):
             self.syncButton.setStyleSheet("background-color: #571B24")
         else:
             self.syncButton.setStyleSheet("background-color: #243427")
+
+    
+        
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

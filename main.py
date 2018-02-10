@@ -11,7 +11,7 @@ settingsReader = csv.reader( open('/home/pi/Desktop/Rally-Project/userdata/setti
 for row in settingsReader:
     Sbase = float(row[0])
     drive_s = float(row[1])/2
-    simple_drive_mode = bool(row[2])
+    simple_drive_mode = row[2]
 
 
 pi = 2*1.30
@@ -70,7 +70,7 @@ def right(i):
 
 stop()
 
-if not simple_drive_mode :
+if simple_drive_mode == "False" :
     models = [
               #'models/start.pmdl', 
               '/home/pi/Desktop/Rally-Project/userdata/right1.pmdl', 
@@ -91,6 +91,7 @@ if not simple_drive_mode :
                 lambda: left(3), 
                 stopVeichle]
 else:
+    print('gay drive mode')
     models = [
               #'models/start.pmdl', 
               '/home/pi/Desktop/Rally-Project/userdata/right-simple.pmdl',
@@ -106,7 +107,7 @@ else:
 # capture SIGINT signal, e.g., Ctrl+C
 signal.signal(signal.SIGINT, signal_handler)
 
-sensitivity = [.5]*len(models)
+sensitivity = [Sbase]*len(models)
 detector = snowboydecoder.HotwordDetector(models, sensitivity=sensitivity)
 
 print('Listening... Press Ctrl+C to exit')
