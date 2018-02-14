@@ -28,10 +28,10 @@ class TrainingDialog(QDialog):
         self.isTraining = False
         self.setWindowTitle('Training Service')
         windowLayout = QVBoxLayout()
-        self.setGeometry( parent.left+parent.width/2-200, parent.top+parent.height/2-150, 400, 300)
+        self.setGeometry( parent.left+parent.width/2-200, parent.top+parent.height/2-250, 400, 500)
         self.layout = QGridLayout()
         # self.horizontalGroupBox = QGroupBox("Training "+self.parent.model_selected)
-        self.horizontalGroupBox = QGroupBox('Train your hotword for: '+self.parent.model_selected.upper())
+        self.horizontalGroupBox = QGroupBox(self.parent.model_selected.upper())
         self.horizontalGroupBox.setLayout(self.layout)
         #––TRAIN BUTTON        
         self.start = QPushButton('TRAIN', default=False, autoDefault = False)
@@ -51,7 +51,9 @@ class TrainingDialog(QDialog):
         self.tutorialLabel.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.tutorialLabel, 1, 0)
 
-        # self.layout.addWidget(QLabel(), 0, 0)
+        tutoria = QLabel("Qui una breve spiegazione")
+        tutoria.setStyleSheet("font: 24pt;")
+        self.layout.addWidget(tutoria, 0, 0)
 
         windowLayout.addWidget(self.horizontalGroupBox)
         self.setLayout(windowLayout)
