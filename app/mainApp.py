@@ -30,26 +30,28 @@ class TrainingDialog(QDialog):
         windowLayout = QVBoxLayout()
         self.setGeometry( parent.left+parent.width/2-200, parent.top+parent.height/2-150, 400, 300)
         self.layout = QGridLayout()
-        self.horizontalGroupBox = QGroupBox("Training "+self.parent.model_selected)
+        # self.horizontalGroupBox = QGroupBox("Training "+self.parent.model_selected)
+        self.horizontalGroupBox = QGroupBox('Train your hotword for: '+self.parent.model_selected.upper())
         self.horizontalGroupBox.setLayout(self.layout)
         #––TRAIN BUTTON        
-        self.start = QPushButton('START', default=False, autoDefault = False)
+        self.start = QPushButton('TRAIN', default=False, autoDefault = False)
         self.start.clicked.connect(self.startTrain_clicked)
         # self.start.setFixedWidth(180)
-        self.layout.addWidget(self.start, 2, 0) 
+        self.layout.addWidget(self.start, 3, 0) 
         #––PROGRES BAR
         self.progressBar = QProgressBar(self)
         self.progressBar.setStyleSheet("font: 24pt;")
         self.progressBar.setAlignment(Qt.AlignCenter)
         self.timer = QBasicTimer()
         self.pogressStatus = 0
-        self.layout.addWidget(self.progressBar, 1, 0)
+        self.layout.addWidget(self.progressBar, 2, 0)
         #––TUTORIAL IMAGE
-        self.tutorialLabel = QLabel("From when you press START you have to\n\n"+
-                                    "speek THREE times "+self.parent.model_selected.upper()+
-                                    ":\nonce for evry bar filling")
-        self.tutorialLabel.setStyleSheet("font: 22pt;")
-        self.layout.addWidget(self.tutorialLabel, 0, 0)
+        self.tutorialLabel = QLabel()
+        self.tutorialLabel.setPixmap(QPixmap("icons/"+self.parent.model_selected.upper()+".png").scaledToHeight(180))
+        self.tutorialLabel.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.tutorialLabel, 1, 0)
+
+        # self.layout.addWidget(QLabel(), 0, 0)
 
         windowLayout.addWidget(self.horizontalGroupBox)
         self.setLayout(windowLayout)
@@ -302,6 +304,7 @@ class App(QDialog):
         #Reset widget    
         self.userList.addItem(str(self.userLine.text()))
         self.userLine.setText('')
+        
         
         
 
