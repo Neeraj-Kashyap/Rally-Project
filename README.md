@@ -1,6 +1,6 @@
 # Rally-Project
 ## An awesome car managed by vocal commands in rally slang
-@barloccia coauthor
+@barloccia co-author
 
 ![Car image](https://github.com/adelmassimo/Rally-Project/blob/master/main.png)
 Raspberry Pi based project, was born as a joke and grown up quickly and returned unexpected good results.
@@ -19,8 +19,9 @@ and train snowboy models (see `app/train_routine`). The rest of code is stuff th
 ![User Interface](https://github.com/adelmassimo/Rally-Project/blob/master/app.png)
 
 To achieve above interface `PyQt5` were used, follows versions of requirements used:
+
 Requirement | Version Used
------------- | -------------
+------------| ------------
 Python | 3.6
 PyQt | 5.10
 pysftp | 0.2.9
